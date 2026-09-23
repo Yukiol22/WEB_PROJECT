@@ -1,7 +1,4 @@
-'use strict'
-import './Header.css';
-
-export default function Header() {
+export default function Header({ currentPage, setCurrentPage, onOpenAuth }) {
   return (
     <header className="header">
       <div className="brand">
@@ -10,14 +7,33 @@ export default function Header() {
       </div>
 
       <nav className="nav">
-        <a href="#home" className="nav-link active">Home</a>
-        <a href="#menu" className="nav-link">Menu & Lunch</a>
-        <a href="#admin" className="nav-link">Admin Portal</a>
+        <button
+          type="button"
+          onClick={() => setCurrentPage("home")}
+          className={`nav-link ${currentPage === "home" ? "active" : ""}`}>
+          Home
+        </button>
+        <button
+          type="button"
+          onClick={() => setCurrentPage("menu")}
+          className={`nav-link ${currentPage === "menu" ? "active" : ""}`}>
+          Menu & Lunch
+        </button>
+        <button
+          type="button"
+          onClick={() => setCurrentPage("admin")}
+          className={`nav-link ${currentPage === "admin" ? "active" : ""}`}>
+          Admin Portal
+        </button>
       </nav>
 
       <div className="actions">
         <button className="cart-btn">🛒 Cart (2)</button>
-        <button className="login-btn">Login / Register</button>
+        <button
+          className="login-btn"
+          onClick={onOpenAuth}>
+          Login / Register
+        </button>
       </div>
     </header>
   );
