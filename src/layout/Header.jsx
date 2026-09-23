@@ -1,7 +1,9 @@
-'use strict'
+import { useNavigate } from 'react-router-dom';
 import './Header.css';
 
 export default function Header() {
+  const navigate = useNavigate();
+
   return (
     <header className="header">
       <div className="brand">
@@ -17,7 +19,13 @@ export default function Header() {
 
       <div className="actions">
         <button className="cart-btn">🛒 Cart (2)</button>
-        <button className="login-btn">Login / Register</button>
+
+
+        <button className="login-btn"
+        onClick={(() => navigate("./login"))}
+
+        >
+          Login / Register</button>
       </div>
     </header>
   );
