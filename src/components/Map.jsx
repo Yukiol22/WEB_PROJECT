@@ -2,10 +2,11 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './Map.css';
+import FetchRoute from './Hslquery/FetchRoute'
 
 export default function Map() {
   const position = [60.1699, 24.9384];
-
+  FetchRoute(60.1699, 24.9384);
   return (
     <div className="map-container">
       <MapContainer 
