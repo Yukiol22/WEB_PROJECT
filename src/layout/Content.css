@@ -181,3 +181,26 @@
 .admin-btn.success {
   background-color: #059669;
 }
+
+.reittiopas-layout {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 80px); /* Adjust based on your header height */
+  overflow: hidden;
+  background-color: #0f172a;
+}
+
+.reittiopas-sidebar {
+  width: 400px;
+  min-width: 350px;
+  height: 100%;
+  overflow-y: auto;
+  border-right: 1px solid #1e293b;
+  box-sizing: border-box;
+}
+
+.reittiopas-map-container {
+  flex: 1;
+  height: 100%;
+  position: relative;
+}
