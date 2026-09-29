@@ -1,10 +1,10 @@
-import {
+/*import {
     register,
     login,
     getProfile,
 } from '..controllers/authController.js';
-
-import { authenticate} from '../middleware/authMiddleware.js';
+*/
+//import { authenticate} from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
