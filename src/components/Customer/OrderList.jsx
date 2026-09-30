@@ -1,48 +1,47 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./OrderList.css";
 
-const API = import.meta.env?.VITE_API_URL || "http://localhost:3000/api";
+const initialOrders = [
+  {
+    order_id: 5552375,
+    customer_name: "John Doe",
+    status: "Preparing",
+    pickup_time: "14:30",
+    total_amount: 25.97,
+    items: [
+      { name: "Double Cheeseburger", quantity: 2 },
+      { name: "French Fries", quantity: 1 },
+    ],
+  },
+  {
+    order_id: 5552376,
+    customer_name: "Jane Smith",
+    status: "New Order",
+    pickup_time: "14:45",
+    total_amount: 14.5,
+    items: [{ name: "Margherita Pizza", quantity: 1 }],
+  },
+];
 
+export function OrderList({ onUpdateOrderStatus }) {
+  const [orders, setOrders] = useState(initialOrders);
 
-const authHeaders = () => {
-  const token = localStorage.getItem("token");
-  return {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-};
+  const handleStatusAdvance = (orderId, currentStatus) => {
+    let nextStatus = "Preparing";
+    if (currentStatus === "New Order") nextStatus = "Preparing";
+    else if (currentStatus === "Preparing") nextStatus = "Ready to Pick Up";
+    else if (currentStatus === "Ready to Pick Up") nextStatus = "Completed";
 
-const NEXT = {
-  "New Order": "Preparing",
-  Preparing: "Ready to Pick Up",
-  "Ready to Pick Up": "Completed",
-};
+    const updated = orders.map((ord) =>
+      ord.order_id === orderId ? { ...ord, status: nextStatus } : ord,
+    );
 
-export function OrderList() {
-  const [orders, setOrders] = useState([]);
+    setOrders(updated);
 
-
-  const loadOrders = async () => {
-    const res = await fetch(`${API}/admin/orders`, { headers: authHeaders() });
-    if (!res.ok) return; 
-    const all = await res.json();
-    setOrders(all.filter((o) => o.status !== "Completed")); 
-  };
-
-
-  useEffect(() => {
-    loadOrders();
-    const timer = setInterval(loadOrders, 10000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const advance = async (order) => {
-    await fetch(`${API}/admin/orders/${order.order_id}/status`, {
-      method: "PATCH",
-      headers: authHeaders(),
-      body: JSON.stringify({ status: NEXT[order.status] }),
-    });
-    loadOrders();
+    // Notify parent / sync state for customer view
+    if (onUpdateOrderStatus) {
+      onUpdateOrderStatus(orderId, nextStatus);
+    }
   };
 
   return (
@@ -81,11 +80,20 @@ export function OrderList() {
 
             <div className="card-footer">
               <span className="order-total">
-                ${Number(order.total_amount).toFixed(2)}
+                ${order.total_amount.toFixed(2)}
               </span>
-              <button className="advance-btn" onClick={() => advance(order)}>
-                Next Step
-              </button>
+              {order.status !== "Completed" && (
+                <button
+                  className="advance-btn"
+                  onClick={() =>
+                    handleStatusAdvance(order.order_id, order.status)
+                  }
+                >
+                  {order.status === "New Order" && "Start Preparing"}
+                  {order.status === "Preparing" && "Mark as Ready"}
+                  {order.status === "Ready to Pick Up" && "Complete Order"}
+                </button>
+              )}
             </div>
           </div>
         ))}

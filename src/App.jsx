@@ -1,28 +1,28 @@
 import { useState } from "react";
-import Header from "./layout/Header";
-import Content from "./layout/Content";
-import Footer from "./layout/Footer";
-import AuthModal from "./components/AuthModal";
+import { CustomerStatus } from "./components/Customer/CustomerStatus";
+import { OrderList } from "./components/Customer/OrderList";
 import "./App.css";
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState("home");
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [order, setOrder] = useState({
+    order_id: 5552375,
+    status: "Preparing",
+    items: [
+      { name: "Double Cheeseburger", quantity: 2 },
+      { name: "French Fries", quantity: 1 },
+    ],
+  });
+
+  function updateOrderStatus(orderId, status) {
+    if (orderId === order.order_id) {
+      setOrder((currentOrder) => ({ ...currentOrder, status }));
+    }
+  }
 
   return (
-    <div className="app-container">
-      <Header
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        onOpenAuth={() => setIsAuthOpen(true)}
-      />
-      <Content currentPage={currentPage} />
-      <Footer />
-
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-      />
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+      <OrderList onUpdateOrderStatus={updateOrderStatus} />
+      <CustomerStatus order={order} />
     </div>
   );
 }

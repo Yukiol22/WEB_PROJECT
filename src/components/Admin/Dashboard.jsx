@@ -1,34 +1,78 @@
-
+import { useEffect, useState } from "react";
 import "./DashBoard.css";
 
+const ORDERS_URL = "http://localhost:3006/api/admin/orders";
+
 export default function Dashboard() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadOrders() {
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      if (!token) {
+        if (isMounted) {
+          setError("Sign in with an admin account to load dashboard data.");
+          setLoading(false);
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch(ORDERS_URL, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(result.message || result.error || "Could not load dashboard data.");
+        }
+        if (isMounted) setOrders(Array.isArray(result) ? result : result.data || []);
+      } catch (requestError) {
+        if (isMounted) setError(requestError.message || "Could not connect to the server.");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadOrders();
+    return () => { isMounted = false; };
+  }, []);
+
+  const todayString = new Date().toDateString();
+  const todaysOrders = orders.filter((order) =>
+    order.created_at && new Date(order.created_at).toDateString() === todayString,
+  );
+  const activeOrders = orders.filter((order) =>
+    !["completed", "cancelled"].includes(String(order.status || "").toLowerCase()),
+  );
+  const salesToday = todaysOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
+
   const stats = [
     {
       title: "Today's Sales",
-      value: "$1,240.50",
-      change: "+12.5%",
-      isPositive: true,
+      value: `€${salesToday.toFixed(2)}`,
+      change: loading ? "Loading" : `${todaysOrders.length} orders today`,
       emoji: "💰",
     },
     {
       title: "Active Orders",
-      value: "14",
-      change: "4 pending",
-      isPositive: true,
-      emoji: "🛎️",
+      value: loading ? "…" : String(activeOrders.length),
+      change: "Not completed",
+      emoji: "🧾",
     },
     {
-      title: "Total Orders",
-      value: "86",
-      change: "+8%",
-      isPositive: true,
+      title: "Total Orders Today",
+      value: loading ? "…" : String(todaysOrders.length),
+      change: "All statuses",
       emoji: "📦",
     },
     {
       title: "Staff on Shift",
-      value: "6",
-      change: "2 on break",
-      isPositive: false,
+      value: "—",
+      change: "Staff data is not available yet",
       emoji: "👥",
     },
   ];
@@ -36,21 +80,18 @@ export default function Dashboard() {
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-title">Dashboard Overview</h1>
+      {error && <p className="dashboard-error" role="alert">{error}</p>}
 
       <div className="stats-grid">
-        {stats.map((stat, index) => (
-          <div key={index} className="stat-card">
+        {stats.map((stat) => (
+          <div key={stat.title} className="stat-card">
             <div className="stat-header">
               <span className="stat-title">{stat.title}</span>
               <span className="stat-icon">{stat.emoji}</span>
             </div>
             <div className="stat-body">
               <span className="stat-value">{stat.value}</span>
-              <span
-                className={`stat-change ${stat.isPositive ? "positive" : "neutral"}`}
-              >
-                {stat.change}
-              </span>
+              <span className="stat-change neutral">{stat.change}</span>
             </div>
           </div>
         ))}
