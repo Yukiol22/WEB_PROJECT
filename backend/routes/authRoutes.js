@@ -1,10 +1,12 @@
-/*import {
+import {
     register,
     login,
     getProfile,
-} from '..controllers/authController.js';
-*/
-//import { authenticate} from '../middleware/authMiddleware.js';
+} from '../controllers/authController.js';
+
+import { authenticate} from '../middleware/authMiddleware.js';
+
+import express from 'express';
 
 const router = express.Router();
 

@@ -8,65 +8,24 @@ export async function getMenu(req, res, next) {
 
     const rows = await connection.query(`
       SELECT
-        mi.item_id,
-        mi.name,
-        mi.description,
-        mi.price,
-        mi.image_url,
-        mi.highlighted,
-        mi.badge_text,
-        mi.is_available,
-        mi.sort_order,
-        c.category_id,
-        c.name AS category_name
-      FROM menu_items mi
-      LEFT JOIN categories c
-        ON c.category_id = mi.category_id
-      WHERE mi.is_available = TRUE
-      ORDER BY
-        c.sort_order ASC,
-        mi.sort_order ASC,
-        mi.name ASC
+        item_id,
+        name,
+        price,
+        description,
+        image_url,
+        tags
+      FROM menu_items
+      ORDER BY item_id
     `);
 
-    const menu = [];
-
-    for (const row of rows) {
-      const tags = await connection.query(
-        `
-        SELECT
-          dt.code,
-          dt.name
-        FROM menu_item_tags mit
-        JOIN dietary_tags dt
-          ON dt.tag_id = mit.tag_id
-        WHERE mit.item_id = ?
-        ORDER BY dt.code
-        `,
-        [row.item_id]
-      );
-
-      menu.push({
-        itemId: Number(row.item_id),
-        name: row.name,
-        description: row.description,
-        price: Number(row.price),
-        imageUrl: row.image_url,
-        highlighted: Boolean(row.highlighted),
-        badgeText: row.badge_text,
-        available: Boolean(row.is_available),
-        category: row.category_id
-          ? {
-              categoryId: Number(row.category_id),
-              name: row.category_name,
-            }
-          : null,
-        tags: tags.map((tag) => ({
-          code: tag.code,
-          name: tag.name,
-        })),
-      });
-    }
+    const menu = rows.map((row) => ({
+      id: Number(row.item_id),
+      title: row.name,
+      price: Number(row.price),
+      description: row.description,
+      image: row.image_url,
+      tags: row.tags ? row.tags.split(',') : [],
+    }));
 
     res.json(menu);
   } catch (error) {
@@ -89,20 +48,14 @@ export async function getMenuItem(req, res, next) {
     const rows = await connection.query(
       `
       SELECT
-        mi.item_id,
-        mi.name,
-        mi.description,
-        mi.price,
-        mi.image_url,
-        mi.highlighted,
-        mi.badge_text,
-        mi.is_available,
-        c.category_id,
-        c.name AS category_name
-      FROM menu_items mi
-      LEFT JOIN categories c
-        ON c.category_id = mi.category_id
-      WHERE mi.item_id = ?
+        item_id,
+        name,
+        price,
+        description,
+        image_url,
+        tags
+      FROM menu_items
+      WHERE item_id = ?
       LIMIT 1
       `,
       [itemId]
@@ -116,39 +69,13 @@ export async function getMenuItem(req, res, next) {
 
     const row = rows[0];
 
-    const tags = await connection.query(
-      `
-      SELECT
-        dt.code,
-        dt.name
-      FROM menu_item_tags mit
-      JOIN dietary_tags dt
-        ON dt.tag_id = mit.tag_id
-      WHERE mit.item_id = ?
-      ORDER BY dt.code
-      `,
-      [itemId]
-    );
-
     res.json({
-      itemId: Number(row.item_id),
-      name: row.name,
-      description: row.description,
+      id: Number(row.item_id),
+      title: row.name,
       price: Number(row.price),
-      imageUrl: row.image_url,
-      highlighted: Boolean(row.highlighted),
-      badgeText: row.badge_text,
-      available: Boolean(row.is_available),
-      category: row.category_id
-        ? {
-            categoryId: Number(row.category_id),
-            name: row.category_name,
-          }
-        : null,
-      tags: tags.map((tag) => ({
-        code: tag.code,
-        name: tag.name,
-      })),
+      description: row.description,
+      image: row.image_url,
+      tags: row.tags ? row.tags.split(',') : [],
     });
   } catch (error) {
     next(error);
