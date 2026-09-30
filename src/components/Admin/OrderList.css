@@ -1,0 +1,146 @@
+.order-list-container {
+  padding: 28px;
+  background-color: #0b0f17; /* Deep dark background */
+  min-height: 100vh;
+  color: #f3f4f6;
+  font-family: 'Inter', sans-serif;
+}
+
+.order-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Dark Pill Filters */
+.filter-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.select-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  padding: 8px 16px;
+  border-radius: 20px;
+  gap: 8px;
+}
+
+.select-wrapper .icon {
+  font-size: 14px;
+}
+
+.filter-select {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+/* Table Card */
+.table-card {
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.orders-table th {
+  padding: 16px 20px;
+  font-weight: 500;
+  color: #9ca3af;
+  border-bottom: 1px solid #1f2937;
+  background-color: #161e2e;
+}
+
+.orders-table td {
+  padding: 16px 20px;
+  color: #d1d5db;
+  border-bottom: 1px solid #1f2937;
+}
+
+.order-id {
+  font-weight: 600;
+  color: #60a5fa; /* Highlight order numbers in subtle blue */
+}
+
+.customer-name {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.amount {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Dynamic Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.status-badge .dot {
+  font-size: 8px;
+}
+
+/* 1. New Order -> Amber/Yellow */
+.status-new {
+  color: #fbbf24;
+  background-color: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+/* 2. On Delivery -> Blue */
+.status-delivery {
+  color: #60a5fa;
+  background-color: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+/* 3. Completed -> Green */
+.status-completed {
+  color: #34d399;
+  background-color: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+/* 4. Cancelled -> Red */
+.status-cancelled {
+  color: #f87171;
+  background-color: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.actions {
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.actions:hover {
+  color: #ffffff;
+}

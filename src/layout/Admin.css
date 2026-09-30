@@ -2,7 +2,7 @@
   width: 100%;
   display: grid;
   grid-template-areas: "sidebar main";
-  grid-template-columns: 200px auto;
+  grid-template-columns: 300px auto;
 }
 
 .sidebar {
@@ -14,7 +14,7 @@
 .main {
   grid-area: main;
   height: 100vh;
-  background-color: #0b0f19; /* Matches the active item color for seamless blending */
+  background-color: #0b0f19;
 }
 
 .sidebar-list {
@@ -25,19 +25,22 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-end; /* Align items to the right edge */
-  gap: 20px;
+  align-items: flex-end; 
+  gap: 40px;
   padding: 20px 0;
   box-sizing: border-box;
   cursor: pointer;
 }
 
 .sidebar-list li {
-  width: 80%; /* Leave space on the left so the curve is visible */
-  height: 45px;
+  width: 80%;
+  height: 69px;
   display: flex;
+  font-size: 1.7rem;
   align-items: center;
-  padding-left: 20px;
+  padding-left: 30px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   color: #9ca3af;
   box-sizing: border-box;
 }
