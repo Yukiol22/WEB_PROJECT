@@ -1,4 +1,5 @@
-export default function Header({ currentPage, setCurrentPage, onOpenAuth }) {
+import "./Header.css"
+export default function Header({ currentPage, setCurrentPage, cartCount = 0, onOpenCart, onOpenAuth }) {
   return (
     <header className="header">
       <div className="brand">
@@ -7,28 +8,42 @@ export default function Header({ currentPage, setCurrentPage, onOpenAuth }) {
       </div>
 
       <nav className="nav">
-        <button
-          type="button"
-          onClick={() => setCurrentPage("home")}
+        <a
+          href="/"
+          onClick={(event) => { event.preventDefault(); setCurrentPage("home"); }}
           className={`nav-link ${currentPage === "home" ? "active" : ""}`}>
           Home
-        </button>
-        <button
-          type="button"
-          onClick={() => setCurrentPage("menu")}
+        </a>
+        <a
+          href="/menu"
+          onClick={(event) => { event.preventDefault(); setCurrentPage("menu"); }}
           className={`nav-link ${currentPage === "menu" ? "active" : ""}`}>
           Menu & Lunch
-        </button>
-        <button
-          type="button"
-          onClick={() => setCurrentPage("admin")}
+        </a>
+        <a
+          href="/orders"
+          onClick={(event) => { event.preventDefault(); setCurrentPage("orders"); }}
+          className={`nav-link ${currentPage === "orders" ? "active" : ""}`}>
+          My Orders
+        </a>
+        <a
+          href="/admin"
+          onClick={(event) => { event.preventDefault(); setCurrentPage("admin"); }}
           className={`nav-link ${currentPage === "admin" ? "active" : ""}`}>
           Admin Portal
-        </button>
+        </a>
+        <a
+          href="/kitchen"
+          onClick={(event) => { event.preventDefault(); setCurrentPage("kitchen"); }}
+          className={`nav-link ${currentPage === "kitchen" ? "active" : ""}`}>
+          Kitchen Portal
+        </a>
       </nav>
 
       <div className="actions">
-        <button className="cart-btn">🛒 Cart (2)</button>
+        <button className="cart-btn" type="button" onClick={onOpenCart}>
+          🛒 Cart ({cartCount})
+        </button>
         <button
           className="login-btn"
           onClick={onOpenAuth}>

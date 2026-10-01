@@ -15,7 +15,7 @@ export default function Dashboard() {
       const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       if (!token) {
         if (isMounted) {
-          setError("Sign in with an admin account to load dashboard data.");
+          setError("Please sign in with an admin account to view dashboard data.");
           setLoading(false);
         }
         return;
@@ -79,7 +79,14 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <h1 className="dashboard-title">Dashboard Overview</h1>
+      <div className="dashboard-heading">
+        <div>
+          <p className="dashboard-eyebrow">OVERVIEW</p>
+          <h1 className="dashboard-title">Good day, Admin</h1>
+          <p className="dashboard-subtitle">Here’s what’s happening at your restaurant today.</p>
+        </div>
+        <div className="dashboard-date">{new Intl.DateTimeFormat("en", { weekday: "short", month: "short", day: "numeric" }).format(new Date())}</div>
+      </div>
       {error && <p className="dashboard-error" role="alert">{error}</p>}
 
       <div className="stats-grid">

@@ -7,16 +7,16 @@ export async function getAllOrders(req, res){
 
     const orders = await conn.query(`
       SELECT 
-        o.id AS order_id,
+        o.order_id,
         o.total_amount,
         o.status,
-        o.created_at,
-        u.id AS user_id,
+        o.pickup_time AS created_at,
+        o.customer_id AS user_id,
         u.name AS customer_name,
         u.email AS customer_email
       FROM orders o
-      JOIN users u ON o.user_id = u.id
-      ORDER BY o.created_at DESC
+      JOIN users u ON o.customer_id = u.user_id
+      ORDER BY o.pickup_time DESC, o.order_id DESC
     `);
 
     res.status(200).json({
@@ -53,7 +53,7 @@ export async function updateOrderStatus(req, res){
     conn = await pool.getConnection();
 
     const result = await conn.query(
-      'UPDATE orders SET status = ? WHERE id = ?',
+      'UPDATE orders SET status = ? WHERE order_id = ?',
       [status, id]
     );
 
@@ -81,12 +81,17 @@ export async function updateOrderStatus(req, res){
 };
 
 export async function createMenuItem(req, res){
-  const { name, description, price, category, image_url, is_available } = req.body;
+  const { name, description, price, category_id: categoryId, image_url } = req.body;
 
-  if (!name || price === undefined) {
+  if (
+    !name ||
+    price === undefined ||
+    !Number.isInteger(Number(categoryId)) ||
+    Number(categoryId) <= 0
+  ) {
     return res.status(400).json({
       success: false,
-      message: 'Name and price are required fields',
+      message: 'Name, price, and a valid category are required',
     });
   }
 
@@ -95,15 +100,14 @@ export async function createMenuItem(req, res){
     conn = await pool.getConnection();
 
     const result = await conn.query(
-      `INSERT INTO menu_items (name, description, price, category, image_url, is_available) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO menu_items (category_id, name, description, price, image_url)
+       VALUES (?, ?, ?, ?, ?)`,
       [
+        Number(categoryId),
         name,
         description || null,
         price,
-        category || 'General',
         image_url || null,
-        is_available ?? true,
       ]
     );
 
@@ -115,9 +119,8 @@ export async function createMenuItem(req, res){
         name,
         description,
         price,
-        category,
+        category_id: Number(categoryId),
         image_url,
-        is_available: is_available ?? true,
       },
     });
   } catch (error) {
@@ -134,12 +137,32 @@ export async function createMenuItem(req, res){
 
 export async function updateMenuItem(req, res) {
   const { id } = req.params;
-  const updates = req.body;
+  const updates = req.body || {};
+  const allowedFields = new Set(['category_id', 'name', 'description', 'price', 'image_url', 'tags']);
 
-  if (Object.keys(updates).length === 0) {
+  if (
+    updates.category_id !== undefined &&
+    (!Number.isInteger(Number(updates.category_id)) || Number(updates.category_id) <= 0)
+  ) {
     return res.status(400).json({
       success: false,
-      message: 'No fields provided for update',
+      message: 'A valid category_id is required',
+    });
+  }
+
+  const fields = [];
+  const values = [];
+
+  for (const [key, value] of Object.entries(updates)) {
+    if (!allowedFields.has(key)) continue;
+    fields.push(`${key} = ?`);
+    values.push(key === 'category_id' ? Number(value) : value);
+  }
+
+  if (fields.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'No valid menu fields provided for update',
     });
   }
 
@@ -148,17 +171,9 @@ export async function updateMenuItem(req, res) {
     conn = await pool.getConnection();
 
 
-    const fields = [];
-    const values = [];
-
-    for (const [key, value] of Object.entries(updates)) {
-      fields.push(`${key} = ?`);
-      values.push(value);
-    }
-
     values.push(id);
 
-    const query = `UPDATE menu_items SET ${fields.join(', ')} WHERE id = ?`;
+    const query = `UPDATE menu_items SET ${fields.join(', ')} WHERE item_id = ?`;
     const result = await conn.query(query, values);
 
     if (result.affectedRows === 0) {
@@ -190,7 +205,7 @@ export async function deleteMenuItem(req, res){
   try {
     conn = await pool.getConnection();
 
-    const result = await conn.query('DELETE FROM menu_items WHERE id = ?', [id]);
+    const result = await conn.query('DELETE FROM menu_items WHERE item_id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({

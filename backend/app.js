@@ -6,6 +6,7 @@ import menuRoutes from './routes/menuRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import staffRoutes from './routes/staffRoutes.js';
 
 const app = express();
 
@@ -26,5 +27,6 @@ app.use('/api/menu', menuRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/staff', staffRoutes);
 
 export default app;

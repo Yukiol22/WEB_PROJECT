@@ -1,9 +1,15 @@
 .order-list-container {
-  padding: 28px;
+  padding: 28px max(24px, calc((100vw - 1200px) / 2));
   background-color: #0b0f17;
-  min-height: 100vh;
+  min-height: calc(100vh - 150px);
   color: #f3f4f6;
   font-family: 'Inter', system-ui, sans-serif;
+}
+
+@media (max-width: 600px) {
+  .order-list-container {
+    padding: 22px 16px;
+  }
 }
 
 .order-list-header {

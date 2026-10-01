@@ -38,7 +38,6 @@ export function OrderList({ onUpdateOrderStatus }) {
 
     setOrders(updated);
 
-    // Notify parent / sync state for customer view
     if (onUpdateOrderStatus) {
       onUpdateOrderStatus(orderId, nextStatus);
     }

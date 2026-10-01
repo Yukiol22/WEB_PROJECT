@@ -1,135 +1,118 @@
-:root {
-  --admin-sidebar: #111827;
-  --admin-page: #0b0f19;
-  --admin-panel: #172033;
-  --admin-border: #273449;
-  --admin-text: #f3f4f6;
-  --admin-muted: #9ca3af;
-  --admin-accent: #60a5fa;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-.container {
-  width: 100%;
-  min-height: 100vh;
+.admin-shell {
+  --admin-bg: #0b1120;
+  --admin-sidebar: #101827;
+  --admin-panel: #131e30;
+  --admin-border: #263247;
+  --admin-text: #edf2fb;
+  --admin-muted: #8794a9;
+  --admin-blue: #77aaff;
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
-  background: var(--admin-page);
+  grid-template-columns: 248px minmax(0, 1fr);
+  min-height: calc(100vh - 76px);
+  background: var(--admin-bg);
   color: var(--admin-text);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-.sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  background: var(--admin-sidebar);
-  border-right: 1px solid var(--admin-border);
-  padding: 28px 16px;
-}
-
-.sidebar-list {
-  width: 100%;
-  height: 100%;
-  list-style: none;
+.admin-sidebar {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 8px;
-  padding: 0;
-  margin: 0;
+  min-height: 100%;
+  padding: 24px 16px 16px;
+  background: var(--admin-sidebar);
+  border-right: 1px solid var(--admin-border);
 }
 
-.sidebar-list li {
+.admin-brand {
   display: flex;
   align-items: center;
-  gap: 13px;
-  width: 100%;
-  min-height: 50px;
-  padding: 0 15px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  color: var(--admin-muted);
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
-}
-
-.sidebar-list li:hover {
+  gap: 11px;
+  padding: 0 9px 28px;
   color: var(--admin-text);
-  background: #1b2638;
+  text-decoration: none;
 }
 
-.sidebar-list li.active {
-  color: #bfdbfe;
-  background: #1e3a5f;
-  border-color: #315a86;
-  font-weight: 600;
+.admin-brand-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #4e8ce8, #765de2);
+  color: white;
+  font-size: 19px;
+  font-weight: 800;
 }
 
-.sidebar-list li.active::before,
-.sidebar-list li.active::after {
-  content: none;
+.admin-brand strong,
+.admin-brand small,
+.admin-sidebar-bottom strong,
+.admin-sidebar-bottom small {
+  display: block;
 }
 
-.sidebar-list .icon {
-  display: inline-flex;
-  justify-content: center;
+.admin-brand strong { font-size: 15px; letter-spacing: .01em; }
+.admin-brand small { margin-top: 3px; color: var(--admin-muted); font-size: 9px; letter-spacing: .16em; }
+.admin-nav-label { padding: 0 12px 10px; color: #65748b; font-size: 10px; font-weight: 700; letter-spacing: .15em; }
+.admin-nav { display: grid; gap: 5px; }
+
+.admin-nav-item {
+  display: flex;
   align-items: center;
-  width: 22px;
-  min-width: 22px;
-  margin: 0;
-  font-size: 17px;
+  gap: 12px;
+  width: 100%;
+  min-height: 43px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #a0acc0;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease, border-color .16s ease;
 }
 
-.main {
-  min-width: 0;
-  min-height: 100vh;
-  background: var(--admin-page);
-  overflow: auto;
+.admin-nav-item:hover { background: #19263a; color: white; }
+.admin-nav-item.active { border-color: #29466c; background: #1a304d; color: #c5ddff; }
+.admin-nav-icon { display: grid; width: 20px; place-items: center; color: #8292aa; font-size: 17px; }
+.admin-nav-item.active .admin-nav-icon { color: var(--admin-blue); }
+.admin-nav-count { display: grid; min-width: 20px; height: 20px; margin-left: auto; place-items: center; border-radius: 6px; background: #26364d; color: #b9c7dc; font-size: 10px; }
+
+.admin-sidebar-bottom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 16px 7px 2px;
+  border-top: 1px solid var(--admin-border);
 }
+
+.admin-user-avatar { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: #293a55; color: #c7ddff; font-size: 11px; font-weight: 700; }
+.admin-sidebar-bottom strong { color: #dbe4f2; font-size: 12px; }
+.admin-sidebar-bottom small { margin-top: 3px; color: var(--admin-muted); font-size: 10px; }
+.admin-user-menu { margin-left: auto; color: var(--admin-muted); font-size: 20px; }
+
+.admin-workspace { min-width: 0; }
+.admin-topbar { display: flex; min-height: 62px; align-items: center; justify-content: space-between; gap: 16px; padding: 0 30px; border-bottom: 1px solid var(--admin-border); background: #0e1726; }
+.admin-breadcrumb { color: var(--admin-muted); font-size: 12px; }
+.admin-breadcrumb span { margin: 0 9px; color: #48566b; }
+.admin-breadcrumb strong { color: #e0e8f5; font-weight: 600; }
+.admin-page-content { min-width: 0; padding: 10px 20px 28px; }
 
 @media (max-width: 760px) {
-  .container {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr);
-  }
+  .admin-shell { grid-template-columns: 1fr; }
+  .admin-sidebar { min-height: auto; padding: 12px; border-right: 0; border-bottom: 1px solid var(--admin-border); }
+  .admin-brand { padding: 0 5px 12px; }
+  .admin-nav-label, .admin-sidebar-bottom { display: none; }
+  .admin-nav { display: flex; gap: 5px; overflow-x: auto; }
+  .admin-nav-item { flex: 0 0 auto; width: auto; min-height: 38px; padding: 0 10px; white-space: nowrap; }
+  .admin-nav-count { display: none; }
+  .admin-topbar { min-height: 54px; padding: 0 15px; }
+  .admin-page-content { padding: 4px 8px 20px; }
+}
 
-  .sidebar {
-    position: sticky;
-    z-index: 5;
-    top: 0;
-    height: auto;
-    padding: 10px 12px;
-    border-right: 0;
-    border-bottom: 1px solid var(--admin-border);
-  }
-
-  .sidebar-list {
-    height: auto;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 6px;
-    overflow-x: auto;
-  }
-
-  .sidebar-list li {
-    width: auto;
-    min-height: 42px;
-    flex: 0 0 auto;
-    padding: 0 12px;
-    gap: 8px;
-    font-size: 13px;
-    white-space: nowrap;
-  }
-
-  .main {
-    min-height: calc(100vh - 64px);
-  }
+@media (max-width: 420px) {
+  .admin-topbar { align-items: flex-start; flex-direction: column; justify-content: center; gap: 6px; padding: 10px 14px; }
 }

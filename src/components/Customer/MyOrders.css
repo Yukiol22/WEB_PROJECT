@@ -1,0 +1,39 @@
+.my-orders {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 10px 48px;
+  color: #f3f4f6;
+}
+
+.my-orders-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.my-orders-heading h1 { margin: 0; color: #fff; font-size: 29px; letter-spacing: -.03em; }
+.my-orders-heading p:not(.my-orders-eyebrow) { margin: 8px 0 0; color: #9ca3af; font-size: 14px; }
+.my-orders-eyebrow { margin: 0 0 7px; color: #7daeff; font-size: 10px; font-weight: 700; letter-spacing: .15em; }
+.my-orders-demo { padding: 7px 10px; border: 1px solid #374151; border-radius: 20px; color: #aebbd0; background: #172033; font-size: 9px; font-weight: 700; letter-spacing: .1em; white-space: nowrap; }
+.my-orders-list { display: grid; gap: 14px; }
+.my-order-card { padding: 20px; border: 1px solid #29364a; border-radius: 12px; background: linear-gradient(145deg, #151f30, #111a29); }
+.my-order-top, .my-order-bottom { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.my-order-number, .my-order-date { display: block; }
+.my-order-number { color: #eaf1fc; font-size: 14px; font-weight: 700; }
+.my-order-date { margin-top: 5px; color: #8794a9; font-size: 11px; }
+.my-order-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; border-radius: 20px; background: #352e1d; color: #f3c968; font-size: 11px; font-weight: 650; }
+.my-order-status span { font-size: 8px; }
+.my-order-status.completed { background: #1d302c; color: #75d5ac; }
+.my-order-items { margin: 18px 0; padding: 12px 14px; border-radius: 8px; background: #0e1725; }
+.my-order-items p { margin: 5px 0; color: #cbd5e1; font-size: 13px; }
+.my-order-bottom { padding-top: 13px; border-top: 1px solid #263247; color: #9ca3af; font-size: 12px; }
+.my-order-bottom strong { color: #e5edf8; }
+.my-order-total { font-size: 15px; }
+
+@media (max-width: 520px) {
+  .my-orders { padding: 22px 4px 32px; }
+  .my-orders-heading { align-items: flex-start; flex-direction: column; }
+  .my-order-card { padding: 15px; }
+}

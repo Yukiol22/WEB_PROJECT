@@ -3,14 +3,19 @@ import "./Menu_Edit.css";
 
 const API_URL = "http://localhost:3006/api";
 
-const categories = ["All", "Mains"];
+const categories = [
+  { category_id: 1, name: "Mains" },
+  { category_id: 2, name: "Pizza" },
+  { category_id: 3, name: "Sides" },
+  { category_id: 4, name: "Drinks" },
+];
 const emptyForm = {
   id: null,
   name: "",
   description: "",
   price: "",
   image_url: "",
-  category: "Mains",
+  category_id: 1,
 };
 
 function getToken() {
@@ -32,8 +37,27 @@ function formatItem(row) {
     description: row.description || "",
     price: Number(row.price || 0),
     image_url: row.image_url || row.image || "",
-    category: row.category || row.category_name || "Mains",
+    category_id: Number(row.category_id || 1),
+    category: row.category_name || "Mains",
   };
+}
+
+function MenuImage({ imageUrl, name }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!imageUrl || failed) {
+    return <div className="menu-image-placeholder">Image unavailable</div>;
+  }
+
+  return (
+    <img
+      className="menu-item-image"
+      src={imageUrl}
+      alt={name}
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 export default function Menu_Edit() {
@@ -88,7 +112,7 @@ export default function Menu_Edit() {
       description: formData.description.trim(),
       price: Number(formData.price),
       image_url: formData.image_url.trim(),
-      category: formData.category,
+      category_id: Number(formData.category_id),
     };
 
     try {
@@ -151,7 +175,7 @@ export default function Menu_Edit() {
       {error && <p className="menu-error" role="alert">{error}</p>}
 
       <div className="category-tabs">
-        {categories.map((category) => (
+        {["All", ...categories.map((category) => category.name)].map((category) => (
           <button
             key={category}
             type="button"
@@ -167,6 +191,7 @@ export default function Menu_Edit() {
         <div className="menu-grid">
           {filteredItems.map((item) => (
             <div key={item.id} className="menu-card">
+              <MenuImage imageUrl={item.image_url} name={item.name} />
               <div className="card-header">
                 <span className="category-badge">{item.category}</span>
                 <span className="item-price">${item.price.toFixed(2)}</span>
@@ -198,8 +223,8 @@ export default function Menu_Edit() {
               </div>
               <div className="form-group">
                 <label htmlFor="menu-category">Category</label>
-                <select id="menu-category" value={formData.category} onChange={(event) => setFormData({ ...formData, category: event.target.value })}>
-                  {categories.filter((category) => category !== "All").map((category) => <option key={category} value={category}>{category}</option>)}
+                <select id="menu-category" value={formData.category_id} onChange={(event) => setFormData({ ...formData, category_id: Number(event.target.value) })}>
+                  {categories.map((category) => <option key={category.category_id} value={category.category_id}>{category.name}</option>)}
                 </select>
               </div>
               <div className="form-group">

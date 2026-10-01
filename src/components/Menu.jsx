@@ -1,7 +1,21 @@
+import { useEffect, useState } from 'react';
 import useMenu from '../hooks/useMenu.js';
+import './Menu.css';
 
-export default function Menu() {
+export default function Menu({ onAddToCart }) {
   const {menu, loading, error} = useMenu();
+  const [addedItemName, setAddedItemName] = useState('');
+
+  useEffect(() => {
+    if (!addedItemName) return undefined;
+    const timeout = setTimeout(() => setAddedItemName(''), 2500);
+    return () => clearTimeout(timeout);
+  }, [addedItemName]);
+
+  function handleAddToCart(item) {
+    onAddToCart?.(item);
+    setAddedItemName(item.title);
+  }
 
   if (loading) {
     return <p>Loading menu...</p>;
@@ -13,6 +27,12 @@ export default function Menu() {
 
   return (
     <section className="section">
+      {addedItemName && (
+        <div className="cart-toast" >
+          <span className="cart-toast-check" >✓</span>
+          {addedItemName} added to cart
+        </div>
+      )}
       <div className="section-header">
         <h2>🥙 King Kebab Menu</h2>
 
@@ -59,7 +79,7 @@ export default function Menu() {
                 ))}
               </div>
 
-              <button className="add-btn">
+              <button className="add-btn" type="button" onClick={() => handleAddToCart(item)}>
                 Add to Cart
               </button>
             </div>

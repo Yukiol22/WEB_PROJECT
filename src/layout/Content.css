@@ -7,6 +7,16 @@
   color: #f3f4f6;
 }
 
+.content-container.admin-content {
+  max-width: none;
+  padding: 0;
+}
+
+.content-container.kitchen-content {
+  max-width: none;
+  padding: 0;
+}
+
 .hero {
   background-color: #1f2937;
   border-radius: 12px;

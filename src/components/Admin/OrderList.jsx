@@ -81,7 +81,12 @@ export default function OrderList() {
           throw new Error(result.message || result.error || "Could not load orders from the server.");
         }
         if (isMounted) {
-          setOrders(Array.isArray(result) ? result : result.data || []);
+          const fetchedOrders = Array.isArray(result)
+            ? result
+            : Array.isArray(result.data)
+              ? result.data
+              : [];
+          setOrders(fetchedOrders.filter((order) => order && (order.order_id ?? order.id) != null));
           setError("");
         }
       } catch (requestError) {
@@ -229,7 +234,11 @@ export default function OrderList() {
               );
             })}
             {!loading && filteredOrders.length === 0 && !error && (
-              <tr><td colSpan="7" className="orders-empty">No orders found for this filter.</td></tr>
+              <tr>
+                <td colSpan="7" className="orders-empty">
+                  {orders.length === 0 ? "No orders yet." : "No orders found for this filter."}
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

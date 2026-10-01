@@ -8,23 +8,28 @@ export async function getMenu(req, res, next) {
 
     const rows = await connection.query(`
       SELECT
-        item_id,
-        name,
-        price,
-        description,
-        image_url,
-        tags
-      FROM menu_items
-      ORDER BY item_id
+        m.item_id,
+        m.category_id,
+        c.name AS category_name,
+        m.name,
+        m.price,
+        m.description,
+        m.image_url,
+        m.tags
+      FROM menu_items m
+      LEFT JOIN categories c ON c.category_id = m.category_id
+      ORDER BY m.item_id
     `);
 
     const menu = rows.map((row) => ({
       id: Number(row.item_id),
+      category_id: row.category_id === null ? null : Number(row.category_id),
       title: row.name,
       price: Number(row.price),
       description: row.description,
       image: row.image_url,
       tags: row.tags ? row.tags.split(',') : [],
+      category_name: row.category_name,
     }));
 
     res.json(menu);
@@ -48,14 +53,17 @@ export async function getMenuItem(req, res, next) {
     const rows = await connection.query(
       `
       SELECT
-        item_id,
-        name,
-        price,
-        description,
-        image_url,
-        tags
-      FROM menu_items
-      WHERE item_id = ?
+        m.item_id,
+        m.category_id,
+        c.name AS category_name,
+        m.name,
+        m.price,
+        m.description,
+        m.image_url,
+        m.tags
+      FROM menu_items m
+      LEFT JOIN categories c ON c.category_id = m.category_id
+      WHERE m.item_id = ?
       LIMIT 1
       `,
       [itemId]
@@ -71,11 +79,13 @@ export async function getMenuItem(req, res, next) {
 
     res.json({
       id: Number(row.item_id),
+      category_id: row.category_id === null ? null : Number(row.category_id),
       title: row.name,
       price: Number(row.price),
       description: row.description,
       image: row.image_url,
       tags: row.tags ? row.tags.split(',') : [],
+      category_name: row.category_name,
     });
   } catch (error) {
     next(error);

@@ -89,6 +89,27 @@
   gap: 14px;
 }
 
+.menu-item-image,
+.menu-image-placeholder {
+  display: grid;
+  width: calc(100% + 36px);
+  height: 154px;
+  margin: -18px -18px 2px;
+  border-radius: 11px 11px 0 0;
+}
+
+.menu-item-image {
+  object-fit: cover;
+  background: #0b0f17;
+}
+
+.menu-image-placeholder {
+  place-items: center;
+  background: linear-gradient(135deg, #172338, #0f1726);
+  color: #8794a9;
+  font-size: 12px;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;

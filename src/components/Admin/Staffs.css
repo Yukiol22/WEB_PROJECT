@@ -26,6 +26,16 @@
   margin: 0;
 }
 
+.staffs-error {
+  margin: 0 0 16px;
+  padding: 11px 13px;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  border-radius: 8px;
+  background: rgba(248, 113, 113, 0.1);
+  color: #fca5a5;
+  font-size: 13px;
+}
+
 .add-btn {
   background-color: #2563eb;
   color: #ffffff;
@@ -92,6 +102,12 @@
   padding: 16px 20px;
   color: #d1d5db;
   border-bottom: 1px solid #1f2937;
+}
+
+.staffs-empty {
+  padding: 24px 20px !important;
+  color: #9ca3af !important;
+  text-align: center;
 }
 
 .user-id {
