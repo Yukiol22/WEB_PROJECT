@@ -1,13 +1,17 @@
-import Map from '../components/Map';
-import './Content.css';
+import Map from "../components/Map";
+import Menu from "../components/Menu";
+import "./Content.css";
 
-export default function Content() {
+export default function Content({ currentPage }) {
   return (
     <main className="content-container">
-      <section className="section">
-        <h3>📍 Restaurant Location</h3>
-        <Map />
-      </section>
+      {currentPage === "menu" ?
+        <Menu />
+      : <section className="section">
+          <h3>📍 Restaurant Location</h3>
+          <Map />
+        </section>
+      }
     </main>
   );
 }
