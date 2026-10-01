@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import "./Staffs.css";
 
-const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:3006/api").replace(/\/+$/, "");
+const API_BASE = "http://localhost:3006/api"
 const STAFF_URL = `${API_BASE}/admin/staff`;
 const rolesList = [
   { role_id: 0, role_name: "All Roles" },
-  { role_id: 2, role_name: "Chef" },
+  { role_id: 3, role_name: "Chef" },
 ];
 
 function getAdminToken() {
@@ -29,7 +29,9 @@ export default function Staffs() {
   const [formData, setFormData] = useState({
     user_id: null,
     name: "",
-    role_id: 2,
+    email: "",
+    password: "",
+    role_id: 3,
     status: "Active",
   });
 
@@ -66,33 +68,32 @@ export default function Staffs() {
 
   const handleOpenModal = (staff = null) => {
     setFormData(staff
-      ? { ...staff, role_id: Number(staff.role_id) }
-      : { user_id: null, name: "", role_id: 2, status: "Active" });
+      ? { ...staff, role_id: Number(staff.role_id), password: "" }
+      : { user_id: null, name: "", email: "", password: "", role_id: 3, status: "Active" });
+    setError("");
     setIsModalOpen(true);
   };
 
   const handleSaveStaff = async (event) => {
     event.preventDefault();
-    if (!formData.user_id) {
-      setError("Adding staff needs a POST staff endpoint; this screen currently supports database loading, editing, and removal.");
-      return;
-    }
-
     const token = getAdminToken();
     if (!token) {
       setError("Sign in with an admin account before editing staff.");
       return;
     }
 
+    setError("");
     try {
-      const response = await fetch(`${STAFF_URL}/${formData.user_id}`, {
-        method: "PATCH",
+      const isNewStaff = !formData.user_id;
+      const response = await fetch(isNewStaff ? STAFF_URL : `${STAFF_URL}/${formData.user_id}`, {
+        method: isNewStaff ? "POST" : "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: formData.name,
+          ...(isNewStaff ? { email: formData.email, password: formData.password } : {}),
           role_id: Number(formData.role_id),
           status: formData.status,
         }),
@@ -199,10 +200,20 @@ export default function Staffs() {
                   type="text"
                   value={formData.name}
                   onChange={(event) => setFormData({ ...formData, name: event.target.value })}
-                  placeholder="e.g. Sarah Jenkins"
+                  placeholder="e.g. EDadad"
                   required
                 />
               </div>
+              {!formData.user_id && <>
+                <div className="form-group">
+                  <label>Email</label>
+                  <input type="email" value={formData.email} onChange={(event) => setFormData({ ...formData, email: event.target.value })} required />
+                </div>
+                <div className="form-group">
+                  <label>Temporary Password (minimum 8 characters)</label>
+                  <input type="password" minLength="8" value={formData.password} onChange={(event) => setFormData({ ...formData, password: event.target.value })} required />
+                </div>
+              </>}
               <div className="form-group">
                 <label>Assign Role</label>
                 <select value={formData.role_id} onChange={(event) => setFormData({ ...formData, role_id: event.target.value })}>
