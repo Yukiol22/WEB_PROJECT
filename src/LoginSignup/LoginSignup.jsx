@@ -8,7 +8,7 @@ const LoginSignup = () => {
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (action === "Sign Up" && name.trim() === "") {
             setMessage("Please enter your name.");
             return;
@@ -24,11 +24,59 @@ const LoginSignup = () => {
             return;
         }
 
-        setMessage("All fields are filled.");
+        setMessage("Please wait...");
 
-        console.log(name, "name");
-        console.log(email, "email");
-        console.log(password, "password");
+        try {
+            const endpoint =
+                action === "Sign Up"
+                    ? "http://localhost:3006/api/auth/register"
+                    : "http://localhost:3006/api/auth/login";
+
+            const body =
+                action === "Sign Up"
+                    ? {
+                          name: name.trim(),
+                          email: email.trim(),
+                          password,
+                      }
+                    : {
+                          email: email.trim(),
+                          password,
+                      };
+
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setMessage(
+                    data.message || data.error || "Something went wrong."
+                );
+                return;
+            }
+
+            localStorage.setItem("token", data.token);
+
+            if (action === "Sign Up") {
+                setMessage("Account created successfully!");
+            } else {
+                setMessage("Login successful!");
+            }
+
+            console.log(data);
+
+        } catch (error) {
+            console.error(error);
+            setMessage(
+                "Could not connect to the server. Make sure the backend is running."
+            );
+        }
     };
 
     return (
