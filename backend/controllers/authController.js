@@ -2,9 +2,8 @@ import pool from '../config/database.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-
-export async function register(req, res){
-  const { name, email, password, role } = req.body;
+export async function register(req, res) {
+  const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({
@@ -14,12 +13,12 @@ export async function register(req, res){
   }
 
   let conn;
+
   try {
     conn = await pool.getConnection();
 
-
     const existingUser = await conn.query(
-      'SELECT id FROM users WHERE email = ?',
+      'SELECT user_id FROM users WHERE email = ?',
       [email]
     );
 
@@ -30,22 +29,43 @@ export async function register(req, res){
       });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-
-    const userRole = role || 'customer';
-
-
-    const result = await conn.query(
-      'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-      [name, email, hashedPassword, userRole]
+    const customerRole = await conn.query(
+      'SELECT role_id, role_name FROM roles WHERE role_name = ? LIMIT 1',
+      ['customer']
     );
 
+    if (customerRole.length === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'Customer role not found',
+      });
+    }
+
+    const roleId = customerRole[0].role_id;
+    const roleName = customerRole[0].role_name;
+
+    const result = await conn.query(
+      `
+      INSERT INTO users (
+        name,
+        email,
+        password_hash,
+        role_id
+      )
+      VALUES (?, ?, ?, ?)
+      `,
+      [name, email, hashedPassword, roleId]
+    );
+
+    const userId = Number(result.insertId);
 
     const token = jwt.sign(
-      { id: result.insertId, role: userRole },
+      {
+        userId,
+        role: roleName,
+      },
       process.env.JWT_SECRET || 'your_fallback_secret_key',
       { expiresIn: '1d' }
     );
@@ -55,14 +75,15 @@ export async function register(req, res){
       message: 'User registered successfully',
       token,
       user: {
-        id: Number(result.insertId),
+        id: userId,
         name,
         email,
-        role: userRole,
+        role: roleName,
       },
     });
   } catch (error) {
     console.error('Registration error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error during registration',
@@ -71,9 +92,9 @@ export async function register(req, res){
   } finally {
     if (conn) conn.release();
   }
-};
+}
 
-export async function login(req, res){
+export async function login(req, res) {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -84,19 +105,23 @@ export async function login(req, res){
   }
 
   let conn;
+
   try {
     conn = await pool.getConnection();
 
     const users = await conn.query(
-      `SELECT
-          u.user_id AS id,
-          u.name,
-          u.email,
-          u.password_hash AS password,
-          r.role_name AS role
+      `
+      SELECT
+        u.user_id,
+        u.name,
+        u.email,
+        u.password_hash,
+        r.role_name
       FROM users u
       JOIN roles r ON u.role_id = r.role_id
-      WHERE u.email = ?`,
+      WHERE u.email = ?
+      LIMIT 1
+      `,
       [email]
     );
 
@@ -109,7 +134,10 @@ export async function login(req, res){
 
     const user = users[0];
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      user.password_hash
+    );
 
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -118,8 +146,13 @@ export async function login(req, res){
       });
     }
 
+    const userId = Number(user.user_id);
+
     const token = jwt.sign(
-      { id: user.id, role: user.role },
+      {
+        userId,
+        role: user.role_name,
+      },
       process.env.JWT_SECRET || 'your_fallback_secret_key',
       { expiresIn: '1d' }
     );
@@ -129,14 +162,15 @@ export async function login(req, res){
       message: 'Logged in successfully',
       token,
       user: {
-        id: user.id,
+        id: userId,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: user.role_name,
       },
     });
   } catch (error) {
     console.error('Login error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error during login',
@@ -145,19 +179,29 @@ export async function login(req, res){
   } finally {
     if (conn) conn.release();
   }
-};
+}
 
-
-export async function getProfile(req, res){
+export async function getProfile(req, res) {
   let conn;
-  try {
 
-    const userId = req.user.id;
+  try {
+    const userId = req.user.userId;
 
     conn = await pool.getConnection();
 
     const users = await conn.query(
-      'SELECT id, name, email, role, created_at FROM users WHERE id = ?',
+      `
+      SELECT
+        u.user_id,
+        u.name,
+        u.email,
+        r.role_name,
+        u.created_at
+      FROM users u
+      JOIN roles r ON u.role_id = r.role_id
+      WHERE u.user_id = ?
+      LIMIT 1
+      `,
       [userId]
     );
 
@@ -168,12 +212,21 @@ export async function getProfile(req, res){
       });
     }
 
+    const user = users[0];
+
     res.status(200).json({
       success: true,
-      data: users[0],
+      data: {
+        id: Number(user.user_id),
+        name: user.name,
+        email: user.email,
+        role: user.role_name,
+        createdAt: user.created_at,
+      },
     });
   } catch (error) {
     console.error('Profile retrieval error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error retrieving user profile',
@@ -182,4 +235,4 @@ export async function getProfile(req, res){
   } finally {
     if (conn) conn.release();
   }
-};
+}
