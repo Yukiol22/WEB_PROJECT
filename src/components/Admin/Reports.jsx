@@ -1,125 +1,117 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Reports.css";
 
+const REPORTS_URL = "http://localhost:3006/api/admin/reports";
+
 export default function Reports() {
-  const [timeframe, setTimeframe] = useState("This Month");
+  const [timeframe, setTimeframe] = useState("all");
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const reportSummary = {
-    totalRevenue: "$14,280.00",
-    totalOrders: 428,
-    averageOrderValue: "$33.36",
-    topCategory: "Mains (54%)",
-  };
+  useEffect(() => {
+    let isMounted = true;
+    async function loadReport() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Sign in with an admin account to view reports.");
+        setLoading(false);
+        return;
+      }
 
-  const paymentBreakdown = [
-    {
-      method: "Credit Card",
-      amount: "$8,560.00",
-      percentage: 60,
-      color: "#3b82f6",
-    },
-    {
-      method: "Online Payment",
-      amount: "$3,420.00",
-      percentage: 24,
-      color: "#8b5cf6",
-    },
-    { method: "Cash", amount: "$2,300.00", percentage: 16, color: "#10b981" },
-  ];
+      setLoading(true);
+      setError("");
+      try {
+        const response = await fetch(`${REPORTS_URL}?timeframe=${timeframe}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || data.message || "Could not load report.");
+        if (isMounted) setReport(data);
+      } catch (requestError) {
+        if (isMounted) setError(requestError.message || "Could not connect to the server.");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
 
-  const handleExport = () => {
-    alert(`Exporting sales report for: ${timeframe}`);
-  };
+    loadReport();
+    return () => { isMounted = false; };
+  }, [timeframe]);
+
+  function exportReport() {
+    if (!report) return;
+    const rows = [
+      ["Report timeframe", report.timeframe],
+      ["Completed order revenue", Number(report.totalRevenue || 0).toFixed(2)],
+      ["Completed orders", report.completedOrders],
+      ["Average order value", Number(report.averageOrderValue || 0).toFixed(2)],
+      [],
+      ["Popular item", "Category", "Quantity sold"],
+      ...(report.popularItems || []).map((item) => [item.name, item.category, item.quantitySold]),
+    ];
+    const csv = rows.map((row) => row.map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`).join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `restaurant-report-${timeframe}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const topItem = report?.topItem;
+  const timeframeLabel = { all: "All Time", today: "Today", week: "This Week", month: "This Month", year: "This Year" }[timeframe];
 
   return (
     <div className="reports-container">
-      {/* Top Bar */}
       <div className="reports-header">
         <div>
-          <h1 className="reports-title">Sales & Financial Reports</h1>
-          <p className="reports-subtitle">
-            Track revenue performance and payment statistics
-          </p>
+          <h1 className="reports-title">Restaurant Reports</h1>
+          <p className="reports-subtitle">Revenue and menu performance from saved orders</p>
         </div>
-
         <div className="header-actions">
-          <select
-            value={timeframe}
-            onChange={(e) => setTimeframe(e.target.value)}
-            className="timeframe-select"
-          >
-            <option value="Today">Today</option>
-            <option value="This Week">This Week</option>
-            <option value="This Month">This Month</option>
-            <option value="This Year">This Year</option>
+          <select value={timeframe} onChange={(event) => setTimeframe(event.target.value)} className="timeframe-select">
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
           </select>
-
-          <button className="export-btn" onClick={handleExport}>
-            <span className="btn-icon">📥</span> Export CSV
-          </button>
+          <button className="export-btn" onClick={exportReport} disabled={!report || loading}>Export CSV</button>
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {error && <p className="reports-subtitle" role="alert">{error}</p>}
+
       <div className="reports-grid">
-        <div className="report-card">
-          <span className="card-label">Total Revenue</span>
-          <span className="card-value highlight">
-            {reportSummary.totalRevenue}
-          </span>
-        </div>
-        <div className="report-card">
-          <span className="card-label">Total Orders Completed</span>
-          <span className="card-value">{reportSummary.totalOrders}</span>
-        </div>
-        <div className="report-card">
-          <span className="card-label">Avg. Order Value</span>
-          <span className="card-value">{reportSummary.averageOrderValue}</span>
-        </div>
-        <div className="report-card">
-          <span className="card-label">Top Selling Category</span>
-          <span className="card-value">{reportSummary.topCategory}</span>
-        </div>
+        <div className="report-card"><span className="card-label">Completed Order Revenue</span><span className="card-value highlight">€{Number(report?.totalRevenue || 0).toFixed(2)}</span></div>
+        <div className="report-card"><span className="card-label">Completed Orders</span><span className="card-value">{loading ? "…" : report?.completedOrders || 0}</span></div>
+        <div className="report-card"><span className="card-label">Average Completed Order</span><span className="card-value">€{Number(report?.averageOrderValue || 0).toFixed(2)}</span></div>
+        <div className="report-card"><span className="card-label">Best Selling Item</span><span className="card-value">{topItem ? `${topItem.name} (${topItem.quantitySold})` : "—"}</span></div>
       </div>
 
-      {/* Payment Method Breakdown Card */}
-      <div className="table-card">
-        <div className="table-card-header">
-          <h3 className="section-title">Payment Method Breakdown</h3>
-        </div>
-        <table className="reports-table">
-          <thead>
-            <tr>
-              <th style={{ width: "35%" }}>Payment Method</th>
-              <th style={{ width: "30%" }}>Total Processed</th>
-              <th style={{ width: "35%" }}>Share of Revenue</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paymentBreakdown.map((item, idx) => (
-              <tr key={idx}>
-                <td className="method-name">{item.method}</td>
-                <td className="amount-cell">{item.amount}</td>
-                <td>
-                  <div className="share-cell">
-                    <div className="progress-bar-bg">
-                      <div
-                        className="progress-bar-fill"
-                        style={{
-                          width: `${item.percentage}%`,
-                          backgroundColor: item.color,
-                        }}
-                      />
-                    </div>
-                    <span className="share-badge" style={{ color: item.color }}>
-                      {item.percentage}%
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="reports-grid">
+        <section className="table-card">
+          <div className="table-card-header"><h2 className="section-title">Order Statuses · {timeframeLabel}</h2></div>
+          <table className="reports-table">
+            <thead><tr><th>Status</th><th>Orders</th></tr></thead>
+            <tbody>
+              {(report?.statuses || []).map((item) => <tr key={item.status}><td className="method-name">{item.status}</td><td>{item.count}</td></tr>)}
+              {!loading && !report?.statuses?.length && <tr><td colSpan="2">No orders in this timeframe.</td></tr>}
+            </tbody>
+          </table>
+        </section>
+
+        <section className="table-card">
+          <div className="table-card-header"><h2 className="section-title">Top Menu Items · {timeframeLabel}</h2></div>
+          <table className="reports-table">
+            <thead><tr><th>Item</th><th>Category</th><th>Qty Sold</th></tr></thead>
+            <tbody>
+              {(report?.popularItems || []).map((item) => <tr key={`${item.name}-${item.category}`}><td className="method-name">{item.name}</td><td>{item.category}</td><td>{item.quantitySold}</td></tr>)}
+              {!loading && !report?.popularItems?.length && <tr><td colSpan="3">No completed order items in this timeframe.</td></tr>}
+            </tbody>
+          </table>
+        </section>
       </div>
     </div>
   );

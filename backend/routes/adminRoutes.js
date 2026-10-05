@@ -2,6 +2,7 @@ import express from 'express';
 
 import {
   getAllOrders,
+  getReports,
   updateOrderStatus,
   createMenuItem,
   updateMenuItem,
@@ -19,6 +20,7 @@ router.use(authenticate);
 router.use(requireAdmin);
 
 router.get('/orders', getAllOrders);
+router.get('/reports', getReports);
 
 router.patch('/orders/:id/status', updateOrderStatus);
 

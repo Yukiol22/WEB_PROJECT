@@ -3,11 +3,6 @@ import "./OrderList.css";
 
 const API_URL = "http://localhost:3006/api/admin/orders";
 
-function getToken() {
-
-  return localStorage.getItem("adminToken") || localStorage.getItem("token");
-}
-
 function getStatusLabel(status) {
   const labels = {
     pending: "Pending",
@@ -30,15 +25,6 @@ function getStatusClass(status) {
   }
 }
 
-function getNextStatus(status) {
-  const next = {
-    pending: "preparing",
-    preparing: "ready",
-    ready: "completed",
-  };
-  return next[String(status || "").toLowerCase()];
-}
-
 function formatDate(value) {
   if (!value) return "N/A";
   const date = new Date(value);
@@ -46,6 +32,7 @@ function formatDate(value) {
   return date.toLocaleString("en-GB", {
     day: "numeric",
     month: "short",
+    year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -54,16 +41,15 @@ function formatDate(value) {
 export default function OrderList() {
   const [orders, setOrders] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("All Status");
-  const [selectedTimeframe, setSelectedTimeframe] = useState("Today");
+  const [selectedTimeframe, setSelectedTimeframe] = useState("All Time");
   const [loading, setLoading] = useState(true);
-  const [updatingOrder, setUpdatingOrder] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadOrders() {
-      const token = getToken();
+      const token = localStorage.getItem("token");
       if (!token) {
         if (isMounted) {
           setError("Please sign in with an admin account to view orders.");
@@ -73,20 +59,12 @@ export default function OrderList() {
       }
 
       try {
-        const response = await fetch(API_URL, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await fetch(API_URL, { headers: { Authorization: `Bearer ${token}` } });
         const result = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(result.message || result.error || "Could not load orders from the server.");
-        }
+        if (!response.ok) throw new Error(result.message || result.error || "Could not load orders.");
         if (isMounted) {
-          const fetchedOrders = Array.isArray(result)
-            ? result
-            : Array.isArray(result.data)
-              ? result.data
-              : [];
-          setOrders(fetchedOrders.filter((order) => order && (order.order_id ?? order.id) != null));
+          const rows = Array.isArray(result) ? result : result.data || [];
+          setOrders(rows.filter((order) => order && (order.order_id ?? order.id) != null));
           setError("");
         }
       } catch (requestError) {
@@ -97,76 +75,39 @@ export default function OrderList() {
     }
 
     loadOrders();
-    const refreshTimer = setInterval(loadOrders, 30000);
+    const timer = setInterval(loadOrders, 30000);
     return () => {
       isMounted = false;
-      clearInterval(refreshTimer);
+      clearInterval(timer);
     };
   }, []);
 
-  async function advanceOrder(order) {
-    const id = order.order_id ?? order.id;
-    const nextStatus = getNextStatus(order.status);
-    const token = getToken();
-    if (!nextStatus || !token) return;
-
-    setUpdatingOrder(id);
-    setError("");
-    try {
-      const response = await fetch(`${API_URL}/${id}/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: nextStatus }),
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(result.message || result.error || "Could not update this order.");
-      }
-      setOrders((currentOrders) => currentOrders.map((current) =>
-        (current.order_id ?? current.id) === id ? { ...current, status: nextStatus } : current,
-      ));
-    } catch (requestError) {
-      setError(requestError.message || "Could not update this order.");
-    } finally {
-      setUpdatingOrder(null);
-    }
-  }
-
   const filteredOrders = orders.filter((order) => {
-    const statusMatches = selectedStatus === "All Status"
-      || String(order.status || "").toLowerCase() === selectedStatus;
-    if (!statusMatches) return false;
-
+    if (selectedStatus !== "All Status" && String(order.status || "").toLowerCase() !== selectedStatus) return false;
     if (selectedTimeframe === "All Time") return true;
-    const createdAt = order.created_at || order.pickup_time;
-    if (!createdAt) return selectedTimeframe === "Today";
-    const date = new Date(createdAt);
+
+    const value = order.created_at || order.pickup_time;
+    if (!value) return false;
+    const date = new Date(value);
     const now = new Date();
     if (selectedTimeframe === "Today") return date.toDateString() === now.toDateString();
     if (selectedTimeframe === "This Week") {
-      const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - now.getDay());
-      weekStart.setHours(0, 0, 0, 0);
-      return date >= weekStart;
+      const start = new Date(now);
+      start.setDate(now.getDate() - now.getDay());
+      start.setHours(0, 0, 0, 0);
+      return date >= start;
     }
-    if (selectedTimeframe === "This Month") {
-      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-    }
-    return true;
+    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
   });
 
   return (
     <div className="order-list-container">
       <div className="order-list-header">
         <h2 className="title">Orders</h2>
-
         <div className="filter-controls">
           <div className="select-wrapper">
             <span className="icon">Status</span>
-            <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className="filter-select">
+            <select value={selectedStatus} onChange={(event) => setSelectedStatus(event.target.value)} className="filter-select">
               <option value="All Status">All Status</option>
               <option value="pending">Pending</option>
               <option value="preparing">Preparing</option>
@@ -175,10 +116,9 @@ export default function OrderList() {
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
-
           <div className="select-wrapper">
             <span className="icon">Date</span>
-            <select value={selectedTimeframe} onChange={(e) => setSelectedTimeframe(e.target.value)} className="filter-select">
+            <select value={selectedTimeframe} onChange={(event) => setSelectedTimeframe(event.target.value)} className="filter-select">
               <option value="Today">Today</option>
               <option value="This Week">This Week</option>
               <option value="This Month">This Month</option>
@@ -193,52 +133,24 @@ export default function OrderList() {
 
       <div className="table-card">
         <table className="orders-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Order Time</th>
-              <th>Customer</th>
-              <th>Location</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Order ID</th><th>Order Time</th><th>Customer</th><th>Items</th><th>Amount</th><th>Status</th></tr></thead>
           <tbody>
-            {!loading && filteredOrders.map((order) => {
-              const id = order.order_id ?? order.id;
-              const nextStatus = getNextStatus(order.status);
-              return (
-                <tr key={id}>
-                  <td className="order-id">#{id}</td>
-                  <td className="order-date">{formatDate(order.created_at || order.pickup_time)}</td>
-                  <td className="customer-name">{order.customer_name || "Customer"}</td>
-                  <td className="location">{order.location || order.order_type || "—"}</td>
-                  <td className="amount">${Number(order.total_amount || 0).toFixed(2)}</td>
-                  <td>
-                    <span className={`status-badge ${getStatusClass(order.status)}`}>
-                      <span className="dot">•</span> {getStatusLabel(order.status)}
-                    </span>
-                  </td>
-                  <td className="actions">
-                    {nextStatus ? <button
-                      type="button"
-                      className="order-status-button"
-                      disabled={updatingOrder === id}
-                      onClick={() => advanceOrder(order)}
-                    >
-                      {updatingOrder === id ? "Saving…" : `Mark ${getStatusLabel(nextStatus)}`}
-                    </button> : "—"}
-                  </td>
-                </tr>
-              );
-            })}
-            {!loading && filteredOrders.length === 0 && !error && (
-              <tr>
-                <td colSpan="7" className="orders-empty">
-                  {orders.length === 0 ? "No orders yet." : "No orders found for this filter."}
-                </td>
+            {!loading && filteredOrders.map((order) => (
+              <tr key={order.order_id ?? order.id}>
+                <td className="order-id">#{order.order_id ?? order.id}</td>
+                <td className="order-date">{formatDate(order.created_at)}</td>
+                <td className="customer-name">{order.customer_name || "Customer"}</td>
+                <td className="location">{order.items?.length
+                  ? order.items.map((item) => `Item #${item.item_id} (${item.name}) × ${item.quantity}`).join(", ")
+                  : "No item details"}</td>
+                <td className="amount">€{Number(order.total_amount || 0).toFixed(2)}</td>
+                <td><span className={`status-badge ${getStatusClass(order.status)}`}>
+                  <span className="dot">•</span> {getStatusLabel(order.status)}
+                </span></td>
               </tr>
+            ))}
+            {!loading && filteredOrders.length === 0 && !error && (
+              <tr><td colSpan="6" className="orders-empty">{orders.length === 0 ? "No orders yet." : "No orders found for this filter."}</td></tr>
             )}
           </tbody>
         </table>

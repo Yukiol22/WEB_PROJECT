@@ -1,8 +1,6 @@
 import pool from '../config/database.js';
 import bcrypt from 'bcryptjs';
 
-const ALLOWED_STATUSES = new Set(['Active', 'On Break', 'Off Duty']);
-
 export async function getStaff(req, res, next) {
   let conn;
 
@@ -14,8 +12,7 @@ export async function getStaff(req, res, next) {
         u.name,
         u.email,
         u.role_id,
-        r.role_name,
-        u.status
+        r.role_name
       FROM users u
       JOIN roles r ON r.role_id = u.role_id
       WHERE r.role_name NOT IN ('customer', 'admin')
@@ -40,7 +37,7 @@ export async function getStaffById(req, res, next) {
   try {
     conn = await pool.getConnection();
     const staff = await conn.query(`
-      SELECT u.user_id, u.name, u.email, u.role_id, r.role_name, u.status
+      SELECT u.user_id, u.name, u.email, u.role_id, r.role_name
       FROM users u
       JOIN roles r ON r.role_id = u.role_id
       WHERE u.user_id = ? AND r.role_name NOT IN ('customer', 'admin')
@@ -59,12 +56,9 @@ export async function getStaffById(req, res, next) {
 }
 
 export async function createStaff(req, res, next) {
-  const { name, email, password, role_id: roleId, status = 'Active' } = req.body || {};
+  const { name, email, password, role_id: roleId } = req.body || {};
   if (typeof name !== 'string' || !name.trim() || typeof email !== 'string' || !email.trim() || typeof password !== 'string' || password.length < 8) {
     return res.status(400).json({ error: 'Name, email, and a password of at least 8 characters are required' });
-  }
-  if (!ALLOWED_STATUSES.has(status)) {
-    return res.status(400).json({ error: 'Status must be Active, On Break, or Off Duty' });
   }
   const parsedRoleId = Number(roleId);
   if (!Number.isInteger(parsedRoleId)) {
@@ -84,11 +78,11 @@ export async function createStaff(req, res, next) {
     }
     const passwordHash = await bcrypt.hash(password, 10);
     const result = await conn.query(
-      'INSERT INTO users (name, email, password_hash, role_id, status) VALUES (?, ?, ?, ?, ?)',
-      [name.trim(), email.trim().toLowerCase(), passwordHash, parsedRoleId, status],
+      'INSERT INTO users (name, email, password_hash, role_id) VALUES (?, ?, ?, ?)',
+      [name.trim(), email.trim().toLowerCase(), passwordHash, parsedRoleId],
     );
     const staff = await conn.query(`
-      SELECT u.user_id, u.name, u.email, u.role_id, r.role_name, u.status
+      SELECT u.user_id, u.name, u.email, u.role_id, r.role_name
       FROM users u JOIN roles r ON r.role_id = u.role_id WHERE u.user_id = ?
     `, [Number(result.insertId)]);
     res.status(201).json(staff[0]);
@@ -104,7 +98,7 @@ export async function createStaff(req, res, next) {
 
 export async function updateStaff(req, res, next) {
   const userId = Number(req.params.id);
-  const { name, role_id: roleId, status } = req.body || {};
+  const { name, role_id: roleId } = req.body || {};
 
   if (!Number.isInteger(userId) || userId <= 0) {
     return res.status(400).json({ error: 'A valid staff ID is required' });
@@ -130,18 +124,8 @@ export async function updateStaff(req, res, next) {
     values.push(parsedRoleId);
   }
 
-  if (status !== undefined) {
-    if (!ALLOWED_STATUSES.has(status)) {
-      return res.status(400).json({
-        error: 'Status must be Active, On Break, or Off Duty',
-      });
-    }
-    updates.push('status = ?');
-    values.push(status);
-  }
-
   if (updates.length === 0) {
-    return res.status(400).json({ error: 'Provide name, role_id, or status to update' });
+    return res.status(400).json({ error: 'Provide a name or role_id to update' });
   }
 
   let conn;

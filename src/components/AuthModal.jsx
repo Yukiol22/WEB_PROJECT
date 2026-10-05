@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./AuthModal.css";
 
 
-export default function AuthModal({ isOpen, onClose }) {
+export default function AuthModal({ isOpen, onClose, onAuthenticated }) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
@@ -49,7 +49,9 @@ export default function AuthModal({ isOpen, onClose }) {
       }
 
       localStorage.setItem("token", data.token);
+      localStorage.removeItem("adminToken");
       localStorage.setItem("user", JSON.stringify(data.user));
+      onAuthenticated?.(data.user);
 
       setMessage(
         isLogin

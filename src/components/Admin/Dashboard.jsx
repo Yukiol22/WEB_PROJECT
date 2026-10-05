@@ -12,7 +12,7 @@ export default function Dashboard() {
     let isMounted = true;
 
     async function loadOrders() {
-      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const token = localStorage.getItem("token");
       if (!token) {
         if (isMounted) {
           setError("Please sign in with an admin account to view dashboard data.");
@@ -41,20 +41,16 @@ export default function Dashboard() {
     return () => { isMounted = false; };
   }, []);
 
-  const todayString = new Date().toDateString();
-  const todaysOrders = orders.filter((order) =>
-    order.created_at && new Date(order.created_at).toDateString() === todayString,
-  );
   const activeOrders = orders.filter((order) =>
     !["completed", "cancelled"].includes(String(order.status || "").toLowerCase()),
   );
-  const salesToday = todaysOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
+  const totalSales = orders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
 
   const stats = [
     {
-      title: "Today's Sales",
-      value: `€${salesToday.toFixed(2)}`,
-      change: loading ? "Loading" : `${todaysOrders.length} orders today`,
+      title: "Total Sales",
+      value: `€${totalSales.toFixed(2)}`,
+      change: "Across all orders",
       emoji: "💰",
     },
     {
@@ -64,16 +60,10 @@ export default function Dashboard() {
       emoji: "🧾",
     },
     {
-      title: "Total Orders Today",
-      value: loading ? "…" : String(todaysOrders.length),
-      change: "All statuses",
+      title: "Total Orders",
+      value: loading ? "…" : String(orders.length),
+      change: "Across all statuses",
       emoji: "📦",
-    },
-    {
-      title: "Staff on Shift",
-      value: "—",
-      change: "Staff data is not available yet",
-      emoji: "👥",
     },
   ];
 
@@ -83,9 +73,11 @@ export default function Dashboard() {
         <div>
           <p className="dashboard-eyebrow">OVERVIEW</p>
           <h1 className="dashboard-title">Good day, Admin</h1>
-          <p className="dashboard-subtitle">Here’s what’s happening at your restaurant today.</p>
+          <p className="dashboard-subtitle">Here’s what’s happening at your restaurant.</p>
         </div>
-        <div className="dashboard-date">{new Intl.DateTimeFormat("en", { weekday: "short", month: "short", day: "numeric" }).format(new Date())}</div>
+        <div className="dashboard-date">
+          {new Intl.DateTimeFormat("en", { weekday: "short", month: "short", day: "numeric" }).format(new Date())}
+        </div>
       </div>
       {error && <p className="dashboard-error" role="alert">{error}</p>}
 

@@ -134,7 +134,7 @@ INSERT INTO `menu_items` (`item_id`, `category_id`, `name`, `price`, `descriptio
 
 -- Dumping structure for table web_project.order_items
 CREATE TABLE IF NOT EXISTS `order_items` (
-  `order_item_id` int(11) NOT NULL,
+  `order_item_id` int(11) NOT NULL AUTO_INCREMENT,
   `order_id` int(11) NOT NULL,
   `item_id` int(11) NOT NULL,
   `quantity` int(11) NOT NULL,
@@ -143,28 +143,47 @@ CREATE TABLE IF NOT EXISTS `order_items` (
   KEY `item_id` (`item_id`),
   CONSTRAINT `1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`),
   CONSTRAINT `2` FOREIGN KEY (`item_id`) REFERENCES `menu_items` (`item_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- Dumping data for table web_project.order_items: ~0 rows (approximately)
+-- Dumping data for table web_project.order_items: ~13 rows (approximately)
 DELETE FROM `order_items`;
+INSERT INTO `order_items` (`order_item_id`, `order_id`, `item_id`, `quantity`) VALUES
+	(1, 1, 1, 1),
+	(2, 1, 2, 1),
+	(3, 2, 2, 1),
+	(4, 2, 3, 1),
+	(5, 3, 2, 2),
+	(6, 3, 1, 1),
+	(7, 3, 3, 1),
+	(8, 3, 6, 1),
+	(9, 3, 5, 1),
+	(10, 3, 4, 2),
+	(11, 3, 7, 1),
+	(12, 3, 8, 1),
+	(13, 3, 9, 1);
 
 -- Dumping structure for table web_project.orders
 CREATE TABLE IF NOT EXISTS `orders` (
-  `order_id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL AUTO_INCREMENT,
   `customer_id` int(11) NOT NULL,
   `staff_id` int(11) DEFAULT NULL,
   `status` varchar(50) NOT NULL,
   `pickup_time` timestamp NULL DEFAULT NULL,
   `total_amount` decimal(10,2) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`order_id`),
   KEY `customer_id` (`customer_id`),
   KEY `staff_id` (`staff_id`),
   CONSTRAINT `1` FOREIGN KEY (`customer_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `2` FOREIGN KEY (`staff_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- Dumping data for table web_project.orders: ~0 rows (approximately)
+-- Dumping data for table web_project.orders: ~3 rows (approximately)
 DELETE FROM `orders`;
+INSERT INTO `orders` (`order_id`, `customer_id`, `staff_id`, `status`, `pickup_time`, `total_amount`, `created_at`) VALUES
+	(1, 5, NULL, 'completed', NULL, 26.50, NULL),
+	(2, 5, NULL, 'completed', NULL, 26.50, NULL),
+	(3, 5, NULL, 'completed', NULL, 139.00, '2026-10-05 23:01:26');
 
 -- Dumping structure for table web_project.payment
 CREATE TABLE IF NOT EXISTS `payment` (
@@ -207,14 +226,17 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `email` (`email`),
   KEY `role_id` (`role_id`),
   CONSTRAINT `1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- Dumping data for table web_project.users: ~3 rows (approximately)
+-- Dumping data for table web_project.users: ~6 rows (approximately)
 DELETE FROM `users`;
 INSERT INTO `users` (`user_id`, `role_id`, `name`, `password_hash`, `email`, `status`) VALUES
 	(1, 1, 'test', '$2b$10$K9KKjFlXCJBX54YVFSC0qeHLR3R/h74Sm7bmDWt2i.LgZo1kKggk2', 'test@test.com', 'Active'),
 	(2, 1, 'test2', '$2b$10$eTi1fsRFtUhWuB.pVDUl6.z2W.h3Wikh4yRHaCm...', 'test2@test.com', 'Active'),
-	(4, 3, 'Kitchen Test', '$2b$10$yTMW2veKhNOxABgnLRIk3ONWquluS7eSkXa0jc202G8iYj3WCae9W', 'kitchentest@test.com', 'Active');
+	(4, 3, 'Kitchen Test', '$2b$10$yTMW2veKhNOxABgnLRIk3ONWquluS7eSkXa0jc202G8iYj3WCae9W', 'kitchentest@test.com', 'Active'),
+	(5, 0, 'Yuki', '$2b$10$2jxcRb9XpZq6S5h8m.gbF.QZrqIUEq316sUgLpcWQUOvCqHqOiEYu', 'test22@test.com', 'Active'),
+	(6, 1, 'Admin', '$2b$10$7HMkcs6LUM8MCVDfH1dSUu5Y.7duZgPgZn3GI7xs9ox9fXg./6vyS', 'test20@test.com', 'Active'),
+	(7, 3, 'yuki', '$2b$10$nAik30wbH7g8d8NssatYe./fGNq3.423jIknRMaUtum0jrZqIv2Rq', 'yukitest@test.com', 'Active');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -19,7 +19,7 @@ const emptyForm = {
 };
 
 function getToken() {
-  return localStorage.getItem("adminToken") || localStorage.getItem("token");
+  return localStorage.getItem("token");
 }
 
 async function readResponse(response) {
