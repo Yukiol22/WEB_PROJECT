@@ -5,8 +5,10 @@ import Staffs from "../components/Admin/Staffs";
 import Reports from "../components/Admin/Reports";
 import Menu_Edit from "../components/Admin/Menu_Edit";
 import OrderList from "../components/Admin/OrderList";
+import Feedback from "../components/Admin/Feedback";
 
 const navItems = [
+  { name: "Feedback", icon: "★", component: Feedback },
   { name: "Dashboard", icon: "▦", component: Dashboard },
   { name: "Orders", icon: "▤", component: OrderList },
   { name: "Menu", icon: "☷", component: Menu_Edit },

@@ -1,0 +1,155 @@
+.route-planner {
+  margin-top: 16px;
+  padding: 20px;
+  color: #f8fafc;
+  background: #111a29;
+  border: 1px solid #2b3748;
+  border-radius: 12px;
+}
+
+.route-planner h3 {
+  margin: 0 0 6px;
+}
+
+.route-planner-hint,
+.route-summary {
+  color: #aab8ca;
+}
+
+.route-planner-hint {
+  margin: 0 0 16px;
+}
+
+.route-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.route-mode,
+.show-route-button {
+  padding: 10px 14px;
+  color: #e7edf7;
+  background: #1b2637;
+  border: 1px solid #3a485d;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.route-mode.selected {
+  color: #f2c65e;
+  background: #292a2b;
+  border-color: #d8a746;
+}
+
+.route-mode-car.selected,
+.route-mode-walk.selected,
+.route-mode-cycle.selected {
+  color: #ffffff;
+  background: #638ce4;
+  border-color: #638ce4;
+}
+
+.show-route-button {
+  margin-top: 14px;
+  color: #ffffff;
+  background: #2563eb;
+  border-color: #3b82f6;
+  font-weight: bold;
+}
+
+.show-route-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.route-error {
+  color: #ff9a9a;
+}
+
+.route-summary {
+  margin: 13px 0 0;
+}
+
+.transit-results {
+  display: grid;
+  gap: 11px;
+  margin-top: 16px;
+}
+
+.transit-option {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  color: #eef3fa;
+  background: #151f2e;
+  border: 1px solid #2b3748;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.transit-option:hover,
+.transit-option.selected {
+  background: #1b293b;
+  border-color: #4385eb;
+}
+
+.transit-option-heading,
+.transit-option-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.transit-option-heading strong:last-child {
+  color: #72d2a1;
+}
+
+.transit-leg-list {
+  display: flex;
+  gap: 4px;
+  margin: 11px 0;
+  overflow-x: auto;
+}
+
+.transit-leg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.transit-leg-mode {
+  min-width: 48px;
+  padding: 6px 10px;
+  color: white;
+  background-color: #43536a;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.transit-transfer {
+  color: #8292a8;
+  font-size: 20px;
+}
+
+.transit-option-footer {
+  color: #adbbcd;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .route-planner {
+    padding: 16px;
+  }
+
+  .route-modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

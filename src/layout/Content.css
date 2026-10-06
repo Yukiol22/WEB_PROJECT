@@ -12,6 +12,11 @@
   padding: 0;
 }
 
+.content-container.home-content {
+  max-width: none;
+  padding: 0;
+}
+
 .content-container.kitchen-content {
   max-width: none;
   padding: 0;

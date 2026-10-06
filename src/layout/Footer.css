@@ -7,15 +7,55 @@
 .footer {
   color: #9ca3af;
   width: 100%;
-  
-  bottom: 0;
+}
+
+.restaurant-info {
+  padding: 32px 24px;
+  background-color: #111827;
+}
+
+.restaurant-info-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.restaurant-info h3,
+.restaurant-info h4 {
+  margin: 0 0 8px;
+  color: #f8fafc;
+}
+
+.restaurant-info p {
+  margin: 5px 0;
+  line-height: 1.5;
 }
 
 .copyright {
   background-color: #111827;
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 0;
   padding: 10px;
   border-top: 1px solid #1f2937;
   font-size: 0.8rem;
+}
+
+@media (max-width: 500px) {
+  .restaurant-info {
+    padding: 24px 20px;
+  }
+
+  .restaurant-info-content {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+@media (min-width: 501px) and (max-width: 800px) {
+  .restaurant-info-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
 }

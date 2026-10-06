@@ -59,3 +59,15 @@ export function requireStaff(req, res, next) {
 
   next();
 }
+
+export function requireCustomer(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  if (String(req.user.role || '').toLowerCase() !== 'customer') {
+    return res.status(403).json({ error: 'Customer access required' });
+  }
+
+  next();
+}

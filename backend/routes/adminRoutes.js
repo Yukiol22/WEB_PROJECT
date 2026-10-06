@@ -8,6 +8,7 @@ import {
   updateMenuItem,
   deleteMenuItem,
 } from '../controllers/adminController.js';
+import { getCustomerFeedback } from '../controllers/feedbackController.js';
 
 import {
   authenticate,
@@ -21,6 +22,7 @@ router.use(requireAdmin);
 
 router.get('/orders', getAllOrders);
 router.get('/reports', getReports);
+router.get('/feedback', getCustomerFeedback);
 
 router.patch('/orders/:id/status', updateOrderStatus);
 
