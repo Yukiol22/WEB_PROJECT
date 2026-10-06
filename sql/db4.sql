@@ -16,10 +16,12 @@
 
 
 -- Dumping database structure for web_project
+DROP DATABASE IF EXISTS `web_project`;
 CREATE DATABASE IF NOT EXISTS `web_project` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_uca1400_ai_ci */;
 USE `web_project`;
 
 -- Dumping structure for table web_project.categories
+DROP TABLE IF EXISTS `categories`;
 CREATE TABLE IF NOT EXISTS `categories` (
   `category_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -36,6 +38,7 @@ INSERT INTO `categories` (`category_id`, `name`) VALUES
 	(5, 'Desserts');
 
 -- Dumping structure for table web_project.customer_feedback
+DROP TABLE IF EXISTS `customer_feedback`;
 CREATE TABLE IF NOT EXISTS `customer_feedback` (
   `feedback_id` int(11) NOT NULL AUTO_INCREMENT,
   `customer_id` int(11) NOT NULL,
@@ -54,6 +57,7 @@ INSERT INTO `customer_feedback` (`feedback_id`, `customer_id`, `rating`, `commen
 	(1, 5, 5, 'yippee', '2026-10-06 14:22:49');
 
 -- Dumping structure for table web_project.menu_items
+DROP TABLE IF EXISTS `menu_items`;
 CREATE TABLE IF NOT EXISTS `menu_items` (
   `item_id` int(11) NOT NULL,
   `category_id` int(11) DEFAULT NULL,
@@ -151,6 +155,7 @@ INSERT INTO `menu_items` (`item_id`, `category_id`, `name`, `price`, `descriptio
 	(79, 4, 'Pepsi virvoitusjuoma 1,5 l', 6.00, 'Tuore ja maistuva King Kebab -annos.', 'https://imageproxy.wolt.com/assets/68e8adef753abfe6b6615c8b', 'L');
 
 -- Dumping structure for table web_project.order_items
+DROP TABLE IF EXISTS `order_items`;
 CREATE TABLE IF NOT EXISTS `order_items` (
   `order_item_id` int(11) NOT NULL AUTO_INCREMENT,
   `order_id` int(11) NOT NULL,
@@ -171,6 +176,7 @@ INSERT INTO `order_items` (`order_item_id`, `order_id`, `item_id`, `quantity`) V
 	(16, 4, 3, 1);
 
 -- Dumping structure for table web_project.orders
+DROP TABLE IF EXISTS `orders`;
 CREATE TABLE IF NOT EXISTS `orders` (
   `order_id` int(11) NOT NULL AUTO_INCREMENT,
   `customer_id` int(11) NOT NULL,
@@ -192,6 +198,7 @@ INSERT INTO `orders` (`order_id`, `customer_id`, `staff_id`, `status`, `pickup_t
 	(4, 5, NULL, 'completed', NULL, 40.00, '2026-10-06 09:39:56');
 
 -- Dumping structure for table web_project.payment
+DROP TABLE IF EXISTS `payment`;
 CREATE TABLE IF NOT EXISTS `payment` (
   `payment_id` int(11) NOT NULL,
   `order_id` int(11) NOT NULL,
@@ -206,6 +213,7 @@ CREATE TABLE IF NOT EXISTS `payment` (
 DELETE FROM `payment`;
 
 -- Dumping structure for table web_project.roles
+DROP TABLE IF EXISTS `roles`;
 CREATE TABLE IF NOT EXISTS `roles` (
   `role_id` int(11) NOT NULL,
   `role_name` varchar(100) NOT NULL,
@@ -221,6 +229,7 @@ INSERT INTO `roles` (`role_id`, `role_name`) VALUES
 	(3, 'Chef');
 
 -- Dumping structure for table web_project.users
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `role_id` int(11) NOT NULL,
