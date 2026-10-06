@@ -51,7 +51,6 @@ export default function Payment({ items = [], onPaid, onBack }) {
         {orderId ? (
           <>
             <h1>Order placed!</h1>
-            <p>Your order #{orderId} was saved. This demo does not process a real payment.</p>
             <button type="button" onClick={onBack}>Back to menu</button>
           </>
         ) : (
@@ -73,7 +72,6 @@ export default function Payment({ items = [], onPaid, onBack }) {
                   ))}
                 </div>
                 <div className="payment-total"><span>Total</span><strong>€{total.toFixed(2)}</strong></div>
-                <p className="payment-note">Demo checkout only. No real payment will be processed.</p>
                 {error && <p className="payment-error" role="alert">{error}</p>}
                 <button type="button" className="payment-pay-button" onClick={pay} disabled={placingOrder}>
                   {placingOrder ? "Placing order..." : `Pay €${total.toFixed(2)}`}
