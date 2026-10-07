@@ -1,4 +1,4 @@
-# To test website your self without localhost [[https://pocket-violation-essence-browsing.trycloudflare.com/menu](https://pocket-violation-essence-browsing.trycloudflare.com/)](https://window-folders-kidney-already.trycloudflare.com/menu)
+# To test website your self without localhost https://window-folders-kidney-already.trycloudflare.com/menu
 
 Admin account
 
