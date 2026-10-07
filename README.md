@@ -94,9 +94,7 @@ PORT=3001
 JWT_SECRET=your_secret_key
 ```
 
-Replace `your_password` with your MariaDB password and `your_secret_key` with a secure, randomly generated secret. **Do not commit the `.env` file to GitHub.**
-
-> If your group is using Metropolia's shared MariaDB database, use the database connection details supplied by your group instead of creating a local database.
+Replace `your_password` with your MariaDB password and `your_secret_key` with a secure, randomly generated secret.
 
 ## 7. Start the Backend
 
@@ -108,8 +106,6 @@ node server.js
 ```
 
 The backend is expected to run at [http://localhost:3001](http://localhost:3001).
-
-If your backend includes the health-check route, you can test it at [http://localhost:3001/api/health](http://localhost:3001/api/health).
 
 ## 8. Start the Frontend
 
