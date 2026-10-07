@@ -1,5 +1,15 @@
 # To test website your self without localhost [https://pocket-violation-essence-browsing.trycloudflare.com/menu](https://pocket-violation-essence-browsing.trycloudflare.com/)
 
+Admin account
+
+test20@test.com
+test1234
+
+Kitchen account
+
+kitchentest@test.com
+1234
+
 # Running the Project Locally
 
 ## Requirements
